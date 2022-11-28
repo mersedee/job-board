@@ -1,21 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import PostList from './components/PostList';
 import './App.css';
 
 const api = 'https://hacker-news.firebaseio.com/v0/';
 const postsMaxLength = 60;
-
-const getContent = (title) => {
-  const index = title.toLowerCase().indexOf('is');
-  const first = title.substr(0, index - 1);
-  const second = title.substr(index, title.length - index);
-  const formattedSecond = second.charAt(0).toUpperCase() + second.slice(1);
-  return [first, formattedSecond];
-};
-
-const getDate = (timestamp) => {
-  const dateFormat = new Date(timestamp * 1000);
-  return `${dateFormat.getDate()}/${dateFormat.getMonth() + 1}/${dateFormat.getFullYear()}`;
-};
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -25,8 +13,11 @@ function App() {
 
   async function fetchJobs() {
     try {
-      const jobIds = await fetch(`${api}jobstories.json`);
-      const jobIdsJson = await jobIds.json();
+      const jobIDsRes = await fetch(`${api}jobstories.json`);
+      if (jobIDsRes.ok === false) {
+        throw new Error(`Response Error: ${jobIDsRes.text}`);
+      }
+      const jobIdsJson = await jobIDsRes.json();
       setJobStories(jobIdsJson);
 
       const jobs = await jobIdsJson.slice(0, 9).map((id) => (
@@ -73,23 +64,7 @@ function App() {
 
         {posts.length > 0
           ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-16">
-              {posts.map((post) => (
-                <a href={post.url || `https://news.ycombinator.com/item?id=${post.id}`} target="_blank" rel="noreferrer" key={post.id}>
-                  <div className="bg-white px-6 pt-6 pb-12 rounded-lg shadow-lg text-center relative">
-                    <h2 className="text-2xl font-bold mb-2 text-gray-800 min-h-[80px]">
-                      {getContent(post.title)[0]}
-                    </h2>
-
-                    <p className="text-xl pb-2 min-h-[120px]">{getContent(post.title)[1]}</p>
-
-                    <div className="text-lg text-gray-700 absolute bottom-6 left-[50%]" style={{ transform: 'translate(-50%, 0)' }}>
-                      {getDate(post.time)}
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
+            <PostList posts={posts} />
           )
           : (
             <div className="text-2xl h-[300px] flex items-center justify-center">
