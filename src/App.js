@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import PostList from './components/PostList';
+import Posts from './components/Posts';
+import { api, postsMaxLength } from './static/constatnts';
 import './App.css';
-
-const api = 'https://hacker-news.firebaseio.com/v0/';
-const postsMaxLength = 60;
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -17,14 +15,13 @@ function App() {
       if (jobIDsRes.ok === false) {
         throw new Error(`Response Error: ${jobIDsRes.text}`);
       }
-      const jobIdsJson = await jobIDsRes.json();
-      setJobStories(jobIdsJson);
+      const jobIDsJson = await jobIDsRes.json();
+      setJobStories(jobIDsJson);
 
-      const jobs = await jobIdsJson.slice(0, 9).map((id) => (
+      const jobs = await jobIDsJson.slice(0, 9).map((id) => (
         fetch(`${api}item/${id}.json`).then((res) => res.json())
       ));
       const result = await Promise.all(jobs);
-
       setPosts(result);
     } catch (error) {
       console.error(error);
@@ -62,15 +59,7 @@ function App() {
           HN Jobs
         </h1>
 
-        {posts.length > 0
-          ? (
-            <PostList posts={posts} />
-          )
-          : (
-            <div className="text-2xl h-[300px] flex items-center justify-center">
-              Loading...
-            </div>
-          )}
+        <Posts posts={posts} />
 
         {posts.length > 0 && posts.length !== postsMaxLength
           && (

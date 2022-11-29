@@ -13,7 +13,7 @@ const getDate = (timestamp) => {
   return `${dateFormat.getDate()}/${dateFormat.getMonth() + 1}/${dateFormat.getFullYear()}`;
 };
 
-function Post({
+function PostItem({
   id, title, time, url,
 }) {
   return (
@@ -33,4 +33,4 @@ function Post({
   );
 }
 
-export default Post;
+export default PostItem;
